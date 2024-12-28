@@ -64,12 +64,12 @@ contract DeployOFT is Script {
 // export TOKEN_ADDRESS=
 // export ENDPOINT_V2_OFT=
 
-// Deploy OFT Adapter
+// # Deploy OFT Adapter
 // forge script script/1.Deploy.s.sol:DeployOFTAdapter \
 // --rpc-url https://sample-rpc.com \
 // --broadcast -vvvv
 
-// Deploy OFT
+// # Deploy OFT
 // forge script script/1.Deploy.s.sol:DeployOFT \
 // --rpc-url https://sample-rpc.com \
 // --broadcast -vvvv
