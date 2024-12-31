@@ -13,12 +13,14 @@ contract DeployOFTAdapter is Script {
         address tokenAddress = vm.envAddress("TOKEN_ADDRESS");
         vm.startBroadcast(deployerPrivateKey);
 
+        //sepolia
         TemplateOFTAdapter USDeOFTAdapter = new TemplateOFTAdapter(
             tokenAddress,
             endpointV2,
             vm.addr(deployerPrivateKey)
         );
 
+        //sepolia
         TemplateOFTAdapter SUSDeOFTAdapter = new TemplateOFTAdapter(
             tokenAddress,
             endpointV2,
@@ -38,6 +40,7 @@ contract DeployOFT is Script {
         address endpointV2 = vm.envAddress("ENDPOINT_V2_OFT");
         vm.startBroadcast(deployerPrivateKey);
 
+        //bnb
         TemplateOFT USDeOFT = new TemplateOFT(
             "USDe",
             "USDe",
@@ -45,6 +48,7 @@ contract DeployOFT is Script {
             vm.addr(deployerPrivateKey)
         );
 
+        //bnb
         TemplateOFT SUSDeOFT = new TemplateOFT(
             "SUSDe",
             "SUSDe",
