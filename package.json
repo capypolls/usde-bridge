@@ -18,7 +18,11 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "viem": "^2.0.0",
+    "wagmi": "^2.0.0",
+    "@layerzerolabs/lz-v2-utilities": "^0.1.0",
+    "@layerzerolabs/lz-definitions": "^0.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
