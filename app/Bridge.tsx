@@ -8,23 +8,23 @@ import { Input } from '@/components/ui/input';
 import { ArrowRightLeft } from 'lucide-react';
 
 type NetworkKey = 'sepolia' | 'bnb';
-type TokenType = 'USDE' | 'SUSDE';
+type TokenType = 'USDe' | 'SUSDe';
 
 const networks = {
   sepolia: {
     name: 'Sepolia',
-    tokens: ['USDE', 'SUSDE'] as TokenType[],
+    tokens: ['USDe', 'SUSDe'] as TokenType[],
     contracts: {
-      USDE: '0x...',
-      SUSDE: '0x...'
+      USDe: '0x...',//usde oft adapter contract address
+      SUSDe: '0x...'//susde oft adapter contract address
     }
   },
   bnb: {
     name: 'BNB Chain',
-    tokens: ['USDE', 'SUSDE'] as TokenType[],
+    tokens: ['USDe', 'SUSDe'] as TokenType[],
     contracts: {
-      USDE: '0x...',
-      SUSDE: '0x...'
+      USDe: '0x...',//usde oft contract address
+      SUSDe: '0x...'//susde oft contract address
     }
   }
 } as const;
@@ -32,7 +32,7 @@ const networks = {
 const Bridge = () => {
   const [sourceNetwork, setSourceNetwork] = useState<NetworkKey>('sepolia');
   const [targetNetwork, setTargetNetwork] = useState<NetworkKey>('bnb');
-  const [token, setToken] = useState<TokenType>('USDE');
+  const [token, setToken] = useState<TokenType>('USDe');
   const [amount, setAmount] = useState('');
 
   const getAvailableTargetNetworks = () => {
