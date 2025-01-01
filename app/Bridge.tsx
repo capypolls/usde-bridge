@@ -10,14 +10,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import useWeb3Bridge from "@/lib/hooks/useWeb3Bridge";
+import useWeb3Bridge, { USDE_ABI, USDE_ADAPTER_ADDRESS, USDE_ADDRESS } from "@/lib/hooks/useWeb3Bridge";
 import { config } from "@/lib/providers/wagmi/config";
 import { ConnectKitButton } from "connectkit";
 import { ArrowRightLeft } from "lucide-react";
-import { useState } from "react";
-import { getAddress, pad } from "viem";
+import { useState, useEffect } from "react";
+import { getAddress, pad, formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
+import { readContract, simulateContract, writeContract, switchChain } from "@wagmi/core";
+import { opBNBTestnet, sepolia } from "wagmi/chains";
 type NetworkKey = "sepolia" | "bnb";
 type TokenType = "USDe" | "SUSDe";
 type ContractKey = "USDe" | "SUSDe" | "USDe_Adapter" | "SUSDe_Adapter";
@@ -59,6 +61,15 @@ const Bridge = () => {
   const [token, setToken] = useState<TokenType>("USDe");
   const [amount, setAmount] = useState("");
   const { isConnected, address } = useAccount();
+  const [sourceBalance, setSourceBalance] = useState<string>("0");
+  const [targetBalance, setTargetBalance] = useState<string>("0");
+  const [txLink, setTxLink] = useState<string>("");
+
+  useEffect(() => {
+    if (isConnected && address) {
+      fetchBalances();
+    }
+  }, [isConnected, address, sourceNetwork, targetNetwork, token]);
 
   const getAvailableTargetNetworks = () => {
     return Object.keys(networks).filter(
@@ -75,6 +86,53 @@ const Bridge = () => {
     if (sourceNetwork && targetNetwork) {
       setSourceNetwork(targetNetwork);
       setTargetNetwork(sourceNetwork);
+    }
+  };
+
+  const handleNetworkSwitch = async (chainId: number) => {
+    try {
+      await switchChain(config, {
+        chainId,
+      });
+      await fetchBalances();
+    } catch (error) {
+      console.error('Error switching network:', error);
+    }
+  };
+
+  const getExplorerLink = (hash: string, network: NetworkKey) => {
+    const baseUrl = network === 'sepolia' 
+      ? 'https://sepolia.etherscan.io/tx/'
+      : 'https://testnet.bscscan.com/tx/';
+    return baseUrl + hash;
+  };
+  
+  const fetchBalances = async () => {
+    try {
+      // Source chain balance
+      const sourceTokenBalance = await readContract(config, {
+        //address: networks[sourceNetwork].contracts[token] as `0x${string}`,
+        address: "0xf805ce4F96e0EdD6f0b6cd4be22B34b92373d696" as `0x${string}`,
+        abi: USDE_ABI,
+        functionName: 'balanceOf',
+        args: [address as `0x${string}`],
+        chainId: sepolia.id, // Sepolia chainId
+      });
+  
+      // Target chain balance
+      const targetTokenBalance = await readContract(config, {
+        //address: networks[targetNetwork].contracts[token] as `0x${string}`,
+        address: "0x9E1eF5A92C9Bf97460Cd00C0105979153EA45b27" as `0x${string}`,
+        abi: USDE_ABI,
+        functionName: 'balanceOf',
+        args: [address as `0x${string}`],
+        chainId: opBNBTestnet.id, // BNB testnet chainId
+      });
+
+      setSourceBalance(formatEther(sourceTokenBalance));
+      setTargetBalance(formatEther(targetTokenBalance));
+    } catch (error) {
+      console.error('Error fetching balances:', error);
     }
   };
 
@@ -139,6 +197,8 @@ const Bridge = () => {
       });
 
       console.log("Bridge successful:", sendReceipt.transactionHash);
+      setTxLink(getExplorerLink(sendReceipt.transactionHash, sourceNetwork));
+      await fetchBalances();
     } catch (error) {
       console.error("Bridge error:", error);
     }
@@ -181,6 +241,14 @@ const Bridge = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {/* <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleNetworkSwitch(sourceNetwork === 'sepolia' ? 11155111 : 97)}
+                className="mt-2"
+              >
+                Switch to {networks[sourceNetwork].name}
+              </Button> */}
             </div>
 
             <Button
@@ -249,6 +317,30 @@ const Bridge = () => {
               className="bg-white border-zinc-200"
             />
           </div>
+
+          <div className="flex justify-between text-sm text-zinc-500 mb-4">
+            <div>
+              <div>Source Balance:</div>
+              <div className="font-medium text-black">{sourceBalance} {token}</div>
+            </div>
+            <div>
+              <div>Target Balance:</div>
+              <div className="font-medium text-black">{targetBalance} {token}</div>
+            </div>
+          </div>
+
+          {txLink && (
+            <div className="text-sm">
+              <a 
+                href={txLink} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-600"
+              >
+                View Transaction
+              </a>
+            </div>
+          )}
 
           <Button
             className="w-full bg-black text-white hover:bg-zinc-800"

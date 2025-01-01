@@ -5,8 +5,8 @@ import { Address } from "viem";
 
 // Import contract ABIs
 import { config } from "@/lib/providers/wagmi/config";
-import susde from "@/lib/types/contracts/bnb-susde";
-import usde from "@/lib/types/contracts/bnb-usde";
+import bnbSusde from "@/lib/types/contracts/bnb-susde";
+import bnbUsde from "@/lib/types/contracts/bnb-usde";
 import oftAdapter from "@/lib/types/contracts/oft-adapter";
 
 // Contract addresses as hex strings
@@ -14,12 +14,12 @@ export const SUSDE_ADAPTER_ADDRESS =
   "0x661a059C390e9f4f8Ae581d09eF0Cea6ECc124A4";
 export const USDE_ADAPTER_ADDRESS =
   "0x7dA8F2F7EF7760E086c2b862cdDeBEFa8d969aa2";
-export const SUSDE_ADDRESS = susde.address;
-export const USDE_ADDRESS = usde.address;
+export const SUSDE_ADDRESS = bnbSusde.address;
+export const USDE_ADDRESS = bnbUsde.address;
 
 // Contract ABIs
-export const SUSDE_ABI = susde.abi;
-export const USDE_ABI = usde.abi;
+export const SUSDE_ABI = bnbSusde.abi;
+export const USDE_ABI = bnbUsde.abi;
 
 type FunctionParams = {
   approve: {
