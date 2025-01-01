@@ -100,7 +100,7 @@ const Bridge = () => {
       };
 
       // Get quote for fees
-      const [nativeFee] = await quoteSend({
+      const feeQuote = await quoteSend({
         dstEid: sendParam.dstEid,
         to: sendParam.to,
         amount: sendParam.amountLD,
@@ -108,8 +108,9 @@ const Bridge = () => {
         refundAddress: sendParam.refundAddress
       },
       networks[sourceNetwork].contracts['USDe_Adapter'] as `0x${string}`,
-      USDE_ADAPTER_ABI);
+      USDE_ADAPTER_ABI) as [bigint, bigint];
 
+      const nativeFee = feeQuote[0];
       console.log('Native fee:', nativeFee);
 
       // Then send

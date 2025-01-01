@@ -1,4 +1,4 @@
-import { simulateContract, writeContract } from "@wagmi/core";
+import { simulateContract, writeContract, readContract } from "@wagmi/core";
 import { useCallback } from "react";
 import { Address, parseUnits } from "viem";
 import { Options, addressToBytes32 } from '@layerzerolabs/lz-v2-utilities';
@@ -13,7 +13,7 @@ import { config } from "@/lib/providers/wagmi/config";
 
 // Contract addresses as hex strings
 export const SUSDE_ADAPTER_ADDRESS = susdeAdapter.address as `0x${string}`;
-export const USDE_ADAPTER_ADDRESS = getAddress(usdeAdapter.address) as `0x${string}`;
+export const USDE_ADAPTER_ADDRESS = usdeAdapter.address as `0x${string}`;
 export const SUSDE_ADDRESS = susde.address as `0x${string}`;
 export const USDE_ADDRESS = usde.address as `0x${string}`;
 
@@ -55,12 +55,12 @@ const useWeb3Bridge = () => {
       oftCmd: "0x"
     };
 
-    const { result } = await simulateContract(config, {
-      address: adapterAddress,
-      abi: adapterAbi,
+    const result = await readContract(config, {
+      address: USDE_ADAPTER_ADDRESS,
+      abi: USDE_ADAPTER_ABI,
       functionName: "quoteSend",
-      args: [sendParam as any, false],
-      //args: [sendParam, false],
+      //args: [sendParam as any, false],
+      args: [sendParam, false],
     });
 
     return result;
