@@ -1,8 +1,8 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OFTAdapter } from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
 
 /**
  * @title OFTAdapter Contract
@@ -15,7 +15,7 @@ import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
  * IF the 'innerToken' applies something like a transfer fee, the default will NOT work...
  * a pre/post balance check will need to be done to calculate the amountSentLD/amountReceivedLD.
  */
-contract TemplateOFTAdapter is OFTAdapter {
+contract USDeOFTAdapter is OFTAdapter {
     constructor(
         address _token,
         address _lzEndpoint,
