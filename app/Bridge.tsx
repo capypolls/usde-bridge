@@ -44,7 +44,7 @@ const networks: Record<
     },
   },
   bnb: {
-    name: "BNB Chain",
+    name: "OpBNB Chain",
     tokens: ["USDe", "SUSDe"] as TokenType[],
     contracts: {
       USDe: getAddress("0x9E1eF5A92C9Bf97460Cd00C0105979153EA45b27"),
