@@ -1,26 +1,23 @@
-import { simulateContract, writeContract } from "@wagmi/core";
+import { Options } from "@layerzerolabs/lz-v2-utilities";
+import { readContract, simulateContract, writeContract } from "@wagmi/core";
 import { useCallback } from "react";
-import { Address, parseUnits } from "viem";
-import { Options, addressToBytes32 } from '@layerzerolabs/lz-v2-utilities';
-import { getAddress } from 'viem' // Add this import
+import { Address } from "viem";
 
 // Import contract ABIs
-import susdeAdapter from "@/lib/types/contracts/susde-adapter";
-import usdeAdapter from "@/lib/types/contracts/usde-adapter";
+import { config } from "@/lib/providers/wagmi/config";
 import susde from "@/lib/types/contracts/bnb-susde";
 import usde from "@/lib/types/contracts/bnb-usde";
-import { config } from "@/lib/providers/wagmi/config";
+import oftAdapter from "@/lib/types/contracts/oft-adapter";
 
 // Contract addresses as hex strings
-export const SUSDE_ADAPTER_ADDRESS = susdeAdapter.address as `0x${string}`;
-export const USDE_ADAPTER_ADDRESS = getAddress(usdeAdapter.address) as `0x${string}`;
-export const SUSDE_ADDRESS = susde.address as `0x${string}`;
-export const USDE_ADDRESS = usde.address as `0x${string}`;
-
+export const SUSDE_ADAPTER_ADDRESS =
+  "0x661a059C390e9f4f8Ae581d09eF0Cea6ECc124A4";
+export const USDE_ADAPTER_ADDRESS =
+  "0x7dA8F2F7EF7760E086c2b862cdDeBEFa8d969aa2";
+export const SUSDE_ADDRESS = susde.address;
+export const USDE_ADDRESS = usde.address;
 
 // Contract ABIs
-export const SUSDE_ADAPTER_ABI = susdeAdapter.abi;
-export const USDE_ADAPTER_ABI = usdeAdapter.abi;
 export const SUSDE_ABI = susde.abi;
 export const USDE_ABI = usde.abi;
 
@@ -32,8 +29,7 @@ type FunctionParams = {
   };
   send: {
     dstEid: number;
-    to: any;
-    //to: `0x${string}`; // This should accept the bytes32 format
+    to: `0x${string}`; // Will only accept 32-byte hex strings
     amount: bigint;
     minAmount: bigint;
     refundAddress: Address;
@@ -41,33 +37,38 @@ type FunctionParams = {
 };
 
 const useWeb3Bridge = () => {
-  const quoteSend = useCallback(async (params: FunctionParams["send"], adapterAddress: Address, adapterAbi: any) => {
-    const options = Options.newOptions().addExecutorLzReceiveOption(65000, 0).toBytes();
-    
-    const sendParam = {
-      dstEid: params.dstEid,
-      //to: params.to as `0x${string}`,
-      to: params.to,
-      amountLD: params.amount,
-      minAmountLD: params.minAmount,
-      extraOptions: options,
-      composeMsg: "0x",
-      oftCmd: "0x"
-    };
+  const quoteSend = useCallback(
+    async (params: FunctionParams["send"], adapterAddress: Address) => {
+      const options = Options.newOptions()
+        .addExecutorLzReceiveOption(65000, 0)
+        .toBytes();
 
-    const { result } = await simulateContract(config, {
-      address: adapterAddress,
-      abi: adapterAbi,
-      functionName: "quoteSend",
-      args: [sendParam as any, false],
-      //args: [sendParam, false],
-    });
+      const sendParam = {
+        dstEid: params.dstEid,
+        to: params.to,
+        amountLD: params.amount,
+        minAmountLD: params.minAmount,
+        extraOptions: `0x${Buffer.from(options).toString(
+          "hex"
+        )}` as `0x${string}`,
+        composeMsg: "0x" as `0x${string}`,
+        oftCmd: "0x" as `0x${string}`,
+      };
 
-    return result;
-  }, []);
+      const result = await readContract(config, {
+        address: adapterAddress,
+        abi: oftAdapter.abi,
+        functionName: "quoteSend",
+        args: [sendParam, false],
+      });
+
+      return result;
+    },
+    []
+  );
 
   const approve = useCallback(async (params: FunctionParams["approve"]) => {
-    console.log('Token address:', params.token); // Add this line to debug
+    console.log("Token address:", params.token); // Add this line to debug
     const { request } = await simulateContract(config, {
       abi: USDE_ABI,
       address: params.token,
@@ -77,34 +78,44 @@ const useWeb3Bridge = () => {
     return writeContract(config, request);
   }, []);
 
-  const send = useCallback(async (params: FunctionParams["send"], nativeFee: bigint) => {
-    const options = Options.newOptions().addExecutorLzReceiveOption(65000, 0).toBytes();
-    
-    const sendParam = {
-      dstEid: params.dstEid,
-      //to: params.to as `0x${string}`,
-      to: params.to,
-      amountLD: params.amount,
-      minAmountLD: params.minAmount,
-      extraOptions: options,
-      composeMsg: "0x",
-      oftCmd: "0x"
-    };
+  const send = useCallback(
+    async (params: FunctionParams["send"], nativeFee: bigint) => {
+      const options = Options.newOptions()
+        .addExecutorLzReceiveOption(65000, 0)
+        .toBytes();
 
-    const { request } = await simulateContract(config, {
-      address: USDE_ADAPTER_ADDRESS,
-      abi: USDE_ADAPTER_ABI,
-      functionName: "send",
-      args: [sendParam, { nativeFee, lzTokenFee: BigInt(0) }, params.refundAddress],
-      value: nativeFee
-    });
-    return writeContract(config, request);
-  }, []);
+      const sendParam = {
+        dstEid: params.dstEid,
+        to: params.to,
+        amountLD: params.amount,
+        minAmountLD: params.minAmount,
+        extraOptions: `0x${Buffer.from(options).toString(
+          "hex"
+        )}` as `0x${string}`,
+        composeMsg: "0x" as `0x${string}`,
+        oftCmd: "0x" as `0x${string}`,
+      };
+
+      const { request } = await simulateContract(config, {
+        address: USDE_ADAPTER_ADDRESS,
+        abi: oftAdapter.abi,
+        functionName: "send",
+        args: [
+          sendParam,
+          { nativeFee, lzTokenFee: BigInt(0) },
+          params.refundAddress,
+        ],
+        value: nativeFee,
+      });
+      return writeContract(config, request);
+    },
+    []
+  );
 
   return {
     approve,
     send,
-    quoteSend
+    quoteSend,
   };
 };
 
