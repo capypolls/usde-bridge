@@ -1,6 +1,6 @@
 import { getDefaultConfig } from "connectkit";
 import { createConfig, http } from "wagmi";
-import { anvil, sepolia, opBNBTestnet } from "wagmi/chains";
+import { opBNBTestnet, sepolia } from "wagmi/chains";
 
 //const isDev = process.env.NODE_ENV === 'development';
 
@@ -13,8 +13,10 @@ export const config = createConfig(
     multiInjectedProviderDiscovery: true,
     transports: {
       //[anvil.id]: http(),
-      [sepolia.id]: http("https://eth-sepolia.g.alchemy.com/v2/vEVKURyIJBdxxahH6eQJOSpjtIe3kA6-"),
-      [opBNBTestnet.id]: http('https://opbnb-testnet-rpc.bnbchain.org'),
+      [sepolia.id]: http(
+        "https://eth-sepolia.g.alchemy.com/v2/vEVKURyIJBdxxahH6eQJOSpjtIe3kA6-"
+      ),
+      [opBNBTestnet.id]: http("https://opbnb-testnet-rpc.bnbchain.org"),
     },
   })
 );

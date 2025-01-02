@@ -12,12 +12,12 @@ import {
 } from "@/components/ui/select";
 import useWeb3Bridge, { USDE_ABI } from "@/lib/hooks/useWeb3Bridge";
 import { config } from "@/lib/providers/wagmi/config";
+import { readContract } from "@wagmi/core";
 import { ConnectKitButton } from "connectkit";
 import { ArrowRightLeft } from "lucide-react";
-import { useState, useEffect } from "react";
-import { getAddress, pad, formatEther} from "viem";
+import { useEffect, useState } from "react";
+import { formatEther, getAddress, pad } from "viem";
 import { useAccount } from "wagmi";
-import { readContract, simulateContract, writeContract, switchChain } from "@wagmi/core";
 import { opBNBTestnet, sepolia } from "wagmi/chains";
 
 import { waitForTransactionReceipt } from "wagmi/actions";
@@ -70,7 +70,13 @@ const Bridge = () => {
     if (isConnected && address) {
       fetchBalances();
     }
-  }, [isConnected, address, sourceNetwork, targetNetwork, token]);
+  }, [
+    isConnected,
+    address,
+    sourceNetwork,
+    targetNetwork,
+    token,
+  ]);
 
   const getAvailableTargetNetworks = () => {
     return Object.keys(networks).filter(
@@ -90,12 +96,12 @@ const Bridge = () => {
     }
   };
 
-  const getExplorerLink = (hash: string, network: NetworkKey) => { 
-    // const baseUrl = network === 'sepolia' 
+  const getExplorerLink = (hash: string, network: NetworkKey) => {
+    // const baseUrl = network === 'sepolia'
     //   ? 'https://sepolia.etherscan.io/tx/'
     //   : 'https://testnet.bscscan.com/tx/';
 
-    const baseUrl = 'https://testnet.layerzeroscan.com/tx/'
+    const baseUrl = "https://testnet.layerzeroscan.com/tx/";
     return baseUrl + hash;
   };
 
@@ -106,27 +112,27 @@ const Bridge = () => {
         //address: networks[sourceNetwork].contracts[token] as `0x${string}`,
         address: "0xf805ce4F96e0EdD6f0b6cd4be22B34b92373d696" as `0x${string}`,
         abi: USDE_ABI,
-        functionName: 'balanceOf',
+        functionName: "balanceOf",
         args: [address as `0x${string}`],
         chainId: sepolia.id, // Sepolia chainId
       });
-  
+
       // Target chain balance
       const targetTokenBalance = await readContract(config, {
         //address: networks[targetNetwork].contracts[token] as `0x${string}`,
 
-      address: "0x9E1eF5A92C9Bf97460Cd00C0105979153EA45b27" as `0x${string}`,
-      abi: USDE_ABI,
-      functionName: 'balanceOf',
-      args: [address as `0x${string}`],
-      chainId: opBNBTestnet.id, // BNB testnet chainId
-    });
-    setSourceBalance(formatEther(sourceTokenBalance));
-    setTargetBalance(formatEther(targetTokenBalance));
-  } catch (error) {
-    console.error('Error fetching balances:', error);
-  }
-};
+        address: "0x9E1eF5A92C9Bf97460Cd00C0105979153EA45b27" as `0x${string}`,
+        abi: USDE_ABI,
+        functionName: "balanceOf",
+        args: [address as `0x${string}`],
+        chainId: opBNBTestnet.id, // BNB testnet chainId
+      });
+      setSourceBalance(formatEther(sourceTokenBalance));
+      setTargetBalance(formatEther(targetTokenBalance));
+    } catch (error) {
+      console.error("Error fetching balances:", error);
+    }
+  };
 
   const handleBridge = async () => {
     try {
@@ -304,18 +310,22 @@ const Bridge = () => {
           <div className="flex justify-between text-sm text-zinc-500 mb-4">
             <div>
               <div>Source Balance:</div>
-              <div className="font-medium text-black">{sourceBalance} {token}</div>
+              <div className="font-medium text-black">
+                {sourceBalance} {token}
+              </div>
             </div>
             <div>
               <div>Target Balance:</div>
-              <div className="font-medium text-black">{targetBalance} {token}</div>
+              <div className="font-medium text-black">
+                {targetBalance} {token}
+              </div>
             </div>
           </div>
           {txLink && (
             <div className="text-sm">
-              <a 
-                href={txLink} 
-                target="_blank" 
+              <a
+                href={txLink}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:text-blue-600"
               >
@@ -323,7 +333,7 @@ const Bridge = () => {
               </a>
             </div>
           )}
-          
+
           <Button
             className="w-full bg-black text-white hover:bg-zinc-800"
             onClick={handleBridge}
