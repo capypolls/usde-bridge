@@ -320,6 +320,7 @@ const Bridge = () => {
                 {targetBalance} {token}
               </div>
             </div>
+
           </div>
           {txLink && (
             <div className="text-sm">
